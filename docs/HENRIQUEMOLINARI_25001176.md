@@ -122,9 +122,10 @@ O sistema deve ser desenvolvido com separação clara de responsabilidades entre
 # 5. Casos de Uso
 
 <img width="484" height="1009" alt="image" src="https://github.com/user-attachments/assets/a46b0319-e92a-4bf9-8a0f-6b74ff4f2b47" />
-# 6. Documentação dos Casos de Uso
 
 ---
+
+# 6. Documentação dos Casos de Uso
 
 ## UC01 — Realizar Venda
 
