@@ -2,7 +2,9 @@
 **Sistema Integrado de Gestão de Farmácia — MVP Definido pelo Estudante**
 
 Aluno: *Henrique de Oliveira Molinari*
+
 RA: *25001176*
+
 Data: *25/03/2026*
 
 ---
