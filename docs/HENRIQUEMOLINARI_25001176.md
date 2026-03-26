@@ -122,3 +122,374 @@ O sistema deve ser desenvolvido com separação clara de responsabilidades entre
 # 5. Casos de Uso
 
 <img width="484" height="1009" alt="image" src="https://github.com/user-attachments/assets/a46b0319-e92a-4bf9-8a0f-6b74ff4f2b47" />
+# 6. Documentação dos Casos de Uso
+
+---
+
+## UC01 — Realizar Venda
+
+**Ator(es):** Atendente, Administrador
+
+**Descrição:** Registra a venda de produtos a um cliente, verificando estoque, calculando valores e emitindo comprovante ao final.
+
+**Pré-condições:**
+- Usuário autenticado com perfil Atendente ou superior
+- Produtos cadastrados no sistema com estoque disponível
+
+**Pós-condições:**
+- Venda registrada no sistema
+- Estoque da unidade atualizado
+- Comprovante emitido ao cliente
+
+### Fluxo Principal
+1. Atendente inicia uma nova venda
+2. Sistema solicita identificação do cliente *(inclui UC02)*
+3. Atendente pesquisa e adiciona produtos pelo nome ou código de barras
+4. Sistema verifica disponibilidade em estoque para cada item *(inclui UC03)*
+5. Atendente informa as quantidades desejadas
+6. Sistema calcula e exibe o valor total
+7. Atendente seleciona a forma de pagamento (à vista)
+8. Sistema finaliza a venda, atualiza o estoque e emite o comprovante
+
+### Fluxos Alternativos / Exceções
+- FA01 — Estoque insuficiente: o sistema bloqueia o item, informa o saldo disponível e aguarda nova quantidade ou remoção do produto
+- FA02 — Produto não encontrado: o sistema exibe mensagem de erro e permite nova busca
+
+### Relacionamentos
+- **Include:** UC02 — Identificar ou Cadastrar Cliente; UC03 — Consultar e Verificar Estoque
+- **Extend:** UC04 — Registrar Venda a Prazo (quando forma de pagamento for a prazo); UC05 — Validar Receita Médica (quando produto for controlado)
+
+### Diagrama de Atividades
+<img width="472" height="1290" alt="image" src="https://github.com/user-attachments/assets/60c1a180-9450-42df-be34-48101b008be2" />
+
+---
+
+## UC02 — Identificar ou Cadastrar Cliente
+
+**Ator(es):** Atendente
+
+**Descrição:** Localiza o cliente no sistema pelo CPF ou nome. Caso não esteja cadastrado, permite o registro rápido durante o atendimento.
+
+**Pré-condições:**
+- Venda em andamento (UC01 em execução)
+
+**Pós-condições:**
+- Cliente identificado e vinculado à venda
+- Novo cadastro criado, se necessário
+
+### Fluxo Principal
+1. Sistema solicita CPF ou nome do cliente
+2. Atendente informa os dados
+3. Sistema localiza o cadastro existente
+4. Cliente é vinculado à venda em andamento
+
+### Fluxos Alternativos / Exceções
+- FA01 — Cliente não encontrado: o sistema oferece a opção de cadastrar novo cliente com nome, CPF e contato
+- FA02 — Atendimento sem identificação: venda pode ser registrada como "consumidor final", sem vínculo a cadastro
+
+### Relacionamentos
+- **Include:** Nenhum
+- **Extend:** Nenhum
+
+### Diagrama de Atividades
+<img width="605" height="501" alt="image" src="https://github.com/user-attachments/assets/6918355a-1c7c-4dfd-9192-ea782ab85665" />
+
+---
+
+## UC03 — Consultar e Verificar Estoque
+
+**Ator(es):** Atendente, Gerente
+
+**Descrição:** Verifica a disponibilidade de um produto no estoque da unidade antes de confirmar sua inclusão em uma venda.
+
+**Pré-condições:**
+- Produto selecionado na venda
+- Estoque da unidade atualizado no sistema
+
+**Pós-condições:**
+- Quantidade disponível confirmada ou insuficiência informada
+- Alerta emitido se saldo estiver abaixo do mínimo
+
+### Fluxo Principal
+1. Sistema recebe o código do produto e a quantidade solicitada
+2. Sistema consulta o saldo atual em estoque da unidade
+3. Sistema compara a quantidade solicitada com o saldo disponível
+4. Disponibilidade confirmada e retornada ao fluxo de venda
+
+### Fluxos Alternativos / Exceções
+- FA01 — Estoque insuficiente: sistema retorna saldo disponível e bloqueia a quantidade solicitada
+- FA02 — Produto sem registro de estoque: sistema informa que o produto não possui saldo cadastrado na unidade
+
+### Relacionamentos
+- **Include:** Nenhum
+- **Extend:** UC10 — Emitir Alerta de Estoque Mínimo (quando saldo atingir nível mínimo)
+
+### Diagrama de Atividades
+
+<img width="466" height="691" alt="image" src="https://github.com/user-attachments/assets/6c69a210-bc80-4d86-82e9-2548c4300b12" />
+
+---
+
+## UC04 — Registrar Venda a Prazo
+
+**Ator(es):** Atendente
+
+**Descrição:** Estende uma venda comum quando o cliente opta por pagamento a prazo, gerando automaticamente o lançamento em contas a receber.
+
+**Pré-condições:**
+- Venda em andamento com cliente identificado e cadastrado
+- Forma de pagamento selecionada como "a prazo"
+
+**Pós-condições:**
+- Venda finalizada
+- Lançamento criado em contas a receber com status "Aberta"
+
+### Fluxo Principal
+1. Atendente seleciona forma de pagamento "a prazo"
+2. Sistema solicita a data de vencimento
+3. Atendente informa o prazo acordado
+4. Sistema cria lançamento em contas a receber com valor, vencimento e status "Aberta"
+5. Venda é finalizada normalmente
+
+### Fluxos Alternativos / Exceções
+- FA01 — Cliente sem cadastro completo: sistema impede venda a prazo e solicita complemento dos dados do cliente
+- FA02 — Data de vencimento inválida: sistema rejeita a data e solicita nova informação
+
+### Relacionamentos
+- **Include:** Nenhum
+- **Extend:** Estende UC01 — Realizar Venda
+
+### Diagrama de Atividades
+<img width="274" height="900" alt="image" src="https://github.com/user-attachments/assets/8930cc93-4895-4e26-a6c3-7c594d7abf8f" />
+
+---
+
+## UC05 — Validar Receita Médica
+
+**Ator(es):** Farmacêutico
+
+**Descrição:** Verifica e registra a receita médica apresentada pelo cliente antes de autorizar a venda de medicamento controlado.
+
+**Pré-condições:**
+- Venda em andamento contendo produto de controle especial
+- Farmacêutico autenticado no sistema
+
+**Pós-condições:**
+- Receita registrada e venda autorizada, ou venda bloqueada por ausência/irregularidade da receita
+
+### Fluxo Principal
+1. Sistema identifica produto controlado na venda e aciona validação
+2. Farmacêutico analisa a receita apresentada pelo cliente
+3. Farmacêutico registra os dados da receita no sistema (número, médico, data)
+4. Sistema autoriza a continuidade da venda
+
+### Fluxos Alternativos / Exceções
+- FA01 — Receita ausente: farmacêutico rejeita a autorização e sistema bloqueia a venda do item controlado
+- FA02 — Receita vencida ou irregular: sistema registra a ocorrência e bloqueia o item
+
+### Relacionamentos
+- **Include:** Nenhum
+- **Extend:** Estende UC01 — Realizar Venda
+
+### Diagrama de Atividades
+<img width="257" height="804" alt="image" src="https://github.com/user-attachments/assets/f9a3f689-3c47-42e9-adaa-d2f3491bf8fe" />
+
+---
+
+## UC06 — Registrar Compra de Fornecedor
+
+**Ator(es):** Gerente, Administrador
+
+**Descrição:** Registra a entrada de produtos adquiridos de um fornecedor, atualizando o estoque da unidade e gerando lançamento financeiro.
+
+**Pré-condições:**
+- Usuário autenticado com perfil Gerente ou Administrador
+- Fornecedor e produtos cadastrados no sistema
+
+**Pós-condições:**
+- Compra registrada no sistema
+- Estoque da unidade atualizado
+- Lançamento criado em contas a pagar
+
+### Fluxo Principal
+1. Gerente acessa o módulo de compras e inicia novo registro
+2. Seleciona o fornecedor
+3. Informa os produtos adquiridos, quantidades e valores
+4. Informa a data da compra e o vencimento do pagamento
+5. Sistema atualiza o estoque da unidade *(inclui UC07)*
+6. Sistema gera lançamento em contas a pagar *(inclui UC08)*
+7. Compra registrada com sucesso
+
+### Fluxos Alternativos / Exceções
+- FA01 — Produto não cadastrado: sistema permite cadastro rápido do produto antes de continuar
+- FA02 — Fornecedor não encontrado: sistema solicita cadastro do fornecedor
+
+### Relacionamentos
+- **Include:** UC07 — Atualizar Estoque; UC08 — Lançar Conta a Pagar
+- **Extend:** Nenhum
+
+### Diagrama de Atividades
+<img width="390" height="764" alt="image" src="https://github.com/user-attachments/assets/56b5aae2-074d-4067-be0b-cbffe26d0f9f" />
+
+---
+
+## UC07 — Atualizar Estoque
+
+**Ator(es):** Sistema (automático)
+
+**Descrição:** Atualiza o saldo em estoque de um produto em uma unidade após qualquer movimentação registrada (compra, venda, devolução ou perda).
+
+**Pré-condições:**
+- Movimentação registrada por outro caso de uso (venda ou compra)
+- Produto e unidade identificados
+
+**Pós-condições:**
+- Saldo do produto na unidade atualizado corretamente
+
+### Fluxo Principal
+1. Sistema recebe os dados da movimentação (produto, quantidade, tipo, unidade)
+2. Sistema localiza o registro de estoque do produto na unidade
+3. Aplica a operação correspondente (entrada ou saída)
+4. Persiste o novo saldo no sistema
+
+### Fluxos Alternativos / Exceções
+- FA01 — Registro de estoque inexistente para o produto: sistema cria o registro com saldo inicial igual à quantidade movimentada (apenas para entradas)
+- FA02 — Falha ao persistir: sistema registra erro e reverte a operação origem para garantir consistência
+
+### Relacionamentos
+- **Include:** É incluído por UC01 e UC06
+- **Extend:** Nenhum
+
+### Diagrama de Atividades
+
+<img width="577" height="591" alt="image" src="https://github.com/user-attachments/assets/320d3cd7-4ec9-4d5f-8abb-89ec7ff85050" />
+
+---
+
+## UC08 — Lançar Conta a Pagar
+
+**Ator(es):** Sistema (automático), Financeiro
+
+**Descrição:** Cria um lançamento financeiro em contas a pagar a partir de uma compra registrada, com valor, vencimento e status inicial.
+
+**Pré-condições:**
+- Compra registrada com valor total e data de vencimento definidos
+
+**Pós-condições:**
+- Lançamento criado em contas a pagar com status "Aberta"
+
+### Fluxo Principal
+1. Sistema recebe os dados da compra (valor, fornecedor, vencimento)
+2. Cria o lançamento com descrição, valor, data de vencimento e status "Aberta"
+3. Lançamento disponível para consulta e gestão pelo setor Financeiro
+
+### Fluxos Alternativos / Exceções
+- FA01 — Data de vencimento não informada: sistema aplica a data da compra como vencimento e emite aviso
+- FA02 — Falha na criação: sistema registra erro e notifica o operador para lançamento manual
+
+### Relacionamentos
+- **Include:** É incluído por UC06
+- **Extend:** Nenhum
+
+### Diagrama de Atividades
+
+<img width="461" height="744" alt="image" src="https://github.com/user-attachments/assets/4b9c15f1-9b9c-49c8-9754-c4d7f64480f4" />
+
+---
+
+## UC09 — Gerenciar Contas a Receber
+
+**Ator(es):** Financeiro, Administrador, Atendente
+
+**Descrição:** Permite ao setor financeiro consultar, filtrar e atualizar os lançamentos de contas a receber, registrando recebimentos e acompanhando vencimentos.
+
+**Pré-condições:**
+- Usuário autenticado com perfil Financeiro, Administrador ou Atendente
+- Lançamentos existentes no sistema
+
+**Pós-condições:**
+- Status dos lançamentos atualizado conforme as ações realizadas
+
+### Fluxo Principal
+1. Usuário acessa o módulo de contas a receber
+2. Sistema exibe lista de lançamentos com filtros por status e período
+3. Usuário seleciona um lançamento em aberto
+4. Registra o recebimento informando a data e o valor recebido
+5. Sistema atualiza o status para "Recebida"
+
+### Fluxos Alternativos / Exceções
+- FA01 — Lançamento vencido sem recebimento: sistema exibe status "Atrasada" e destaca o registro
+- FA02 — Valor recebido diferente do original: sistema registra o valor real e mantém o saldo pendente em aberto
+
+### Relacionamentos
+- **Include:** Nenhum
+- **Extend:** Nenhum
+
+### Diagrama de Atividades
+<img width="434" height="911" alt="image" src="https://github.com/user-attachments/assets/36765e02-70b6-4632-a3ea-dcc7b9e174d1" />
+
+---
+
+## UC10 — Emitir Alerta de Estoque Mínimo
+
+**Ator(es):** Sistema (automático), Gerente
+
+**Descrição:** Notifica o gerente da unidade quando o saldo de um produto atinge ou fica abaixo do nível mínimo configurado, sem bloquear as demais operações.
+
+**Pré-condições:**
+- Produto com nível mínimo de estoque configurado
+- Saldo do produto igual ou inferior ao mínimo após movimentação
+
+**Pós-condições:**
+- Alerta registrado e exibido ao gerente da unidade
+
+### Fluxo Principal
+1. Sistema identifica que o saldo do produto atingiu o nível mínimo após uma movimentação
+2. Sistema gera o alerta com produto, unidade e saldo atual
+3. Alerta é exibido na interface do gerente da unidade
+4. Gerente visualiza e decide sobre a necessidade de reposição
+
+### Fluxos Alternativos / Exceções
+- FA01 — Nível mínimo não configurado para o produto: sistema não emite alerta e registra ausência de parâmetro
+- FA02 — Gerente não está ativo no sistema: alerta é mantido pendente e exibido no próximo acesso
+
+### Relacionamentos
+- **Include:** Nenhum
+- **Extend:** Estende UC03 — Consultar e Verificar Estoque
+
+### Diagrama de Atividades
+
+<img width="494" height="710" alt="image" src="https://github.com/user-attachments/assets/b1e76c28-24f2-4e14-8144-3e0330397b71" />
+
+---
+
+## UC11 — Gerar Relatório de Indicadores
+
+**Ator(es):** Gerente, Financeiro, Administrador
+
+**Descrição:** Permite que gestores consultem relatórios simples com indicadores operacionais da unidade, como produtos mais vendidos, saldo de estoque e vendas por período.
+
+**Pré-condições:**
+- Usuário autenticado com perfil Gerente, Financeiro ou Administrador
+- Dados de vendas e estoque registrados no sistema
+
+**Pós-condições:**
+- Relatório gerado e exibido ao usuário conforme os filtros aplicados
+
+### Fluxo Principal
+1. Usuário acessa o módulo de relatórios
+2. Seleciona o tipo de relatório desejado (produtos mais vendidos, estoque ou vendas por período)
+3. Informa os filtros necessários (período, unidade)
+4. Sistema processa e exibe o relatório na tela
+
+### Fluxos Alternativos / Exceções
+- FA01 — Sem dados no período informado: sistema exibe mensagem informando ausência de registros para os filtros aplicados
+- FA02 — Período inválido (data final anterior à inicial): sistema rejeita o filtro e solicita correção
+
+### Relacionamentos
+- **Include:** Nenhum
+- **Extend:** Nenhum
+
+### Diagrama de Atividades
+<img width="536" height="757" alt="image" src="https://github.com/user-attachments/assets/b8f5b93f-2d2f-4c39-91fe-5f3c19cdca03" />
+
