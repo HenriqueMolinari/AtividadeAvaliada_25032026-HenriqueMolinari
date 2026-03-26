@@ -101,7 +101,7 @@ O sistema deve permitir a geração de relatórios básicos como produtos mais v
 
 ---
 
-🛡 # 4. Requisitos Não Funcionais
+ # 🛡 4. Requisitos Não Funcionais
 
 **RNF01 — Desempenho**
 Consultas de produtos e clientes durante o atendimento devem retornar resultados em até 2 segundos, mesmo com grande volume de registros, garantindo agilidade no balcão.
