@@ -119,3 +119,6 @@ O sistema deve garantir consistência entre os módulos, uma venda finalizada de
 O sistema deve ser desenvolvido com separação clara de responsabilidades entre módulos (vendas, estoque, compras, financeiro), facilitando correções e evoluções sem impacto em outros componentes.
 
 ---
+# 5. Casos de Uso
+
+<img width="484" height="1009" alt="image" src="https://github.com/user-attachments/assets/a46b0319-e92a-4bf9-8a0f-6b74ff4f2b47" />
