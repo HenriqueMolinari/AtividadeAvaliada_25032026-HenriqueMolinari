@@ -33,7 +33,8 @@ O MVP pensado por mim cobre o ciclo operacional principal de uma farmácia, part
 - Aplicativo mobile
 - Integração com planos de saúde e convênios externos
 
-**Justificativa**
+**Justificativa:**
+
 O foco foi garantir que o ciclo básico da farmácia funcionasse: atender o cliente, registrar a venda, controlar o estoque e refletir tudo no financeiro. A geração de relatórios simples também foi incluída, pois mesmo num MVP os gestores precisam de alguma visibilidade para tomar decisões no dia a dia. O que ficou de fora não trava a operação e pode entrar numa próxima versão. Essa delimitação permite entregar algo funcional e testável mais rápido, com base para crescer.
 
 ---
